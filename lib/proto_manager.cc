@@ -80,6 +80,7 @@ int register_tcp_protocols(LPIModuleMap *mod_map) {
 	register_bitextend(mod_map);
 	register_bittorrent(mod_map);
 	register_blizzard(mod_map);
+	register_btsync(mod_map);
 	register_cgp(mod_map);
 	register_chatango(mod_map);
 	register_cisco_vpn(mod_map);
