@@ -236,6 +236,7 @@ int register_udp_protocols(LPIModuleMap *mod_map) {
 	register_ares_udp(mod_map);
 	register_backweb(mod_map);
 	register_battlefield(mod_map);
+	register_btsync_udp(mod_map);
 	register_bjnp(mod_map);
 	register_canon_mfnp(mod_map);
 	register_callofduty(mod_map);
