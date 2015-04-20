@@ -7,6 +7,7 @@ libprotoident_udp_la_SOURCES = \
 	lpi_ares.cc \
 	lpi_backweb.cc \
 	lpi_battlefield.cc \
+	lpi_btsync.cc \
 	lpi_bjnp.cc \
 	lpi_canon_mfnp.cc \
 	lpi_checkpoint_rdp.cc \
@@ -114,6 +115,7 @@ libprotoident_udp_la_SOURCES = \
 	lpi_steam.cc \
 	lpi_steamfriends.cc \
 	lpi_steam_localbroadcast.cc \
+	lpi_steam_inhousebroadcast.cc \
 	lpi_storm_worm.cc \
 	lpi_stun.cc \
 	lpi_syslog.cc \
