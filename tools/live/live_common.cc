@@ -72,26 +72,13 @@
 #define OUT_PEAK (cnt->out_peak_flows)
 #define IN_PEAK (cnt->in_peak_flows)
 
-
-static inline IPCollector * create_ip_collector() {
-	IPCollector *col = NULL;
-
-	col = (IPCollector *)malloc(sizeof(IPCollector));
-	memset(col->currently_active_flows, 0, LPI_PROTO_LAST * sizeof(uint64_t));
-	memset(col->total_observed_period, 0, LPI_PROTO_LAST * sizeof(uint64_t));
-
-	return col;
-}
-
-
 static void wipe_local_ip_collectors(IPMap *ipmap) {
 	
 	IPMap::iterator ii = ipmap->begin();
 
 	while (ii != ipmap->end()) {
 		IPMap::iterator tmp = ii;
-		ii ++;
-		free(tmp->second);
+        ii ++;
 		ipmap->erase(tmp);
 	}
 
@@ -106,9 +93,9 @@ static void reset_local_ip_counts(uint64_t *counts, IPMap *ipmap) {
 		bool active = false;
 
 		for (int i = 0; i < LPI_PROTO_LAST; i++) {
-			ii->second->total_observed_period[i] = 
-				ii->second->currently_active_flows[i];
-			if (ii->second->total_observed_period[i] > 0) {
+            ii->second.total_observed_period[i] =
+                ii->second.currently_active_flows[i];
+            if (ii->second.total_observed_period[i] > 0) {
 				counts[i]++;
 				active = true;
 			}
@@ -119,9 +106,7 @@ static void reset_local_ip_counts(uint64_t *counts, IPMap *ipmap) {
 			 * remove it from the IP map to save space
 			 */
 			IPMap::iterator tmp = ii;
-			ii ++;
-			free((char *)tmp->first);
-			free(tmp->second);
+            ii ++;
 			ipmap->erase(tmp);
 		} else {
 			ii++;
@@ -177,7 +162,6 @@ void reset_counters(LiveCounters *cnt, bool wipe_all) {
 		if (reset_user(it->second, wipe_all)) {
 			tmp = it;
 			it ++;
-			free((void *)tmp->first);
 			free(tmp->second);
 			cnt->users.erase(tmp);
 		} else {
@@ -235,15 +219,11 @@ void init_live_flow(LiveCounters *cnt, Flow *f, uint8_t dir, double ts) {
 		/* Create a new counter for the user if needed */
 		UserMap::iterator it = cnt->users.find(live->local_ip);
 		if (it != cnt->users.end())
-			return;
-
-		size_t key_len = strlen(live->local_ip) + 1;
-		char *key = (char *)malloc(key_len);
-		memcpy(key, live->local_ip, key_len);
+            return;
 		
 		UserCounters *uc = (UserCounters *)malloc(sizeof(UserCounters));
 		reset_user(uc, true);
-		cnt->users[key] = uc;
+        cnt->users[live->local_ip] = uc;
 		cnt->user_count ++;
 	}
 
@@ -324,27 +304,13 @@ static bool should_guess(LiveFlow *live, uint32_t plen, uint8_t dir) {
 static inline void activate_local_ip(LiveFlow *live, IPMap *ipmap, 
 		uint64_t *ip_counts) {
 
-	/* Update the IP map for this flow */
-	IPMap::iterator it;
-	IPCollector *ip_coll = NULL;
+    /* Update the IP map for this flow */
+    IPCollector& ip_coll = (*ipmap)[live->local_ip];
 
-	it = ipmap->find(live->local_ip);
-	if (it == ipmap->end()) {
-		size_t key_len = strlen(live->local_ip) + 1;
-		char *key = (char *)malloc(key_len);
-		memcpy(key, live->local_ip, key_len);
-		
-		ip_coll = create_ip_collector();
-		(*ipmap)[key] = ip_coll;
+    ip_coll.currently_active_flows[PROTONUM] += 1;
+    ip_coll.total_observed_period[PROTONUM] += 1;
 
-	} else {
-		ip_coll = it->second;
-	}
-
-	ip_coll->currently_active_flows[PROTONUM] += 1;
-	ip_coll->total_observed_period[PROTONUM] += 1;
-
-	if (ip_coll->total_observed_period[PROTONUM] == 1)
+    if (ip_coll.total_observed_period[PROTONUM] == 1)
 		ip_counts[PROTONUM] += 1;	
 
 }
@@ -352,23 +318,22 @@ static inline void activate_local_ip(LiveFlow *live, IPMap *ipmap,
 static inline void swap_local_ip(LiveFlow *live, IPMap *ipmap, 
 		uint64_t *ip_counts, lpi_protocol_t old) {
 
-	IPCollector *col = NULL;
 	IPMap::iterator it = ipmap->find(live->local_ip);
 	assert(it != ipmap->end());
 
-	col = it->second;
-	assert(col->currently_active_flows[old] > 0);
-	assert(col->total_observed_period[old] > 0);
+    IPCollector &col = it->second;
+    assert(col.currently_active_flows[old] > 0);
+    assert(col.total_observed_period[old] > 0);
 
-	col->currently_active_flows[old] -= 1;
-	col->total_observed_period[old] -= 1;
-	col->currently_active_flows[PROTONUM] += 1;
-	col->total_observed_period[PROTONUM] += 1;
+    col.currently_active_flows[old] -= 1;
+    col.total_observed_period[old] -= 1;
+    col.currently_active_flows[PROTONUM] += 1;
+    col.total_observed_period[PROTONUM] += 1;
 
-	if (col->total_observed_period[old] == 0) {
+    if (col.total_observed_period[old] == 0) {
 		ip_counts[old] -= 1;
 	}
-	if (col->total_observed_period[PROTONUM] == 1) {
+    if (col.total_observed_period[PROTONUM] == 1) {
 		ip_counts[PROTONUM] += 1;
 	}
 	
@@ -379,8 +344,8 @@ static inline void deactivate_local_ip(LiveFlow *live, IPMap *ipmap) {
 
 	IPMap::iterator it = ipmap->find(live->local_ip);
 	assert(it != ipmap->end());
-	IPCollector *col = it->second;
-	col->currently_active_flows[PROTONUM] -= 1;
+    IPCollector &col = it->second;
+    col.currently_active_flows[PROTONUM] -= 1;
 
 }
 
