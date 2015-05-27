@@ -396,6 +396,7 @@ int main(int argc, char *argv[]) {
                 }
 
 		if (done)
+            trace_destroy(trace);
 			break;
 
                 if (trace_is_err(trace)) {
@@ -407,6 +408,8 @@ int main(int argc, char *argv[]) {
                 trace_destroy(trace);
 
         }
+
+        reset_counters(&counts, false);
 
         trace_destroy_packet(packet);
 	expire_live_flows(ts, true);
