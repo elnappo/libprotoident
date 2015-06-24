@@ -151,6 +151,7 @@ int register_tcp_protocols(LPIModuleMap *mod_map) {
 	register_mzinga(mod_map);
 	register_ncsoft(mod_map);
 	register_netbios(mod_map);
+	register_metflix(mod_map);
 	register_nntp(mod_map);
 	register_nntps(mod_map);
 	register_notes_rpc(mod_map);

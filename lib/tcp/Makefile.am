@@ -77,6 +77,7 @@ libprotoident_tcp_la_SOURCES = \
 	lpi_mzinga.cc \
 	lpi_ncsoft.cc \
 	lpi_netbios.cc \
+	lpi_netflix.cc \
 	lpi_nntp.cc \
 	lpi_nntps.cc \
 	lpi_nopayload.cc \

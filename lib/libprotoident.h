@@ -267,6 +267,7 @@ typedef enum {
         LPI_PROTO_WHATSAPP,
         LPI_PROTO_WECHAT,
 	LPI_PROTO_FUNSHION,
+	LPI_PROTO_NETFLIX,
 
         /* UDP Protocols */
         LPI_PROTO_UDP,

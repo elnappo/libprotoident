@@ -80,6 +80,7 @@ void register_mystery_symantec(LPIModuleMap *mod_map);
 void register_mzinga(LPIModuleMap *mod_map);
 void register_ncsoft(LPIModuleMap *mod_map);
 void register_netbios(LPIModuleMap *mod_map);
+void register_netflix(LPIModuleMap *mod_map);
 void register_nntp(LPIModuleMap *mod_map);
 void register_nntps(LPIModuleMap *mod_map);
 void register_notes_rpc(LPIModuleMap *mod_map);
