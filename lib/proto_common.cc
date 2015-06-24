@@ -31,8 +31,13 @@
  */
 
 #include <string.h>
+#include <string>
+#include <arpa/inet.h>
+#include <stdlib.h>
 #include "libprotoident.h"
 #include "proto_common.h"
+
+using std::string;
 
 bool match_str_either(lpi_data_t *data, const char *string) {
 
@@ -680,4 +685,56 @@ bool match_tpkt(uint32_t payload, uint32_t len) {
                 return false;
         return true;
 
+}
+
+in_addr_t netmask(int prefix) {
+
+  if (prefix == 0)
+    return(~((in_addr_t) -1));
+  else
+    return(~((1 << (32 - prefix)) - 1));
+
+}
+
+in_addr_t network(in_addr_t addr, int prefix) {
+
+  return(addr & netmask(prefix));
+
+}
+
+bool match_ip_either_to_network(lpi_data_t *data, const char *network)
+{
+    char * network_copy = strdup(network);
+    const char *address = strtok(network_copy, "/");
+    int netmask = atoi(strtok(NULL, "/"));
+
+    if (netmask < 0 || netmask > 32)
+        return false;
+
+    std::cout << data->ips[0] << std::endl;
+
+    in_addr_t addr = inet_network(address);
+
+    in_addr_t a1 = ::network(addr, netmask);
+    in_addr_t a2 = ::network(htonl(data->ips[0]), netmask);
+    in_addr_t a3 = ::network(htonl(data->ips[1]), netmask);
+
+    if (a1 == a2)
+        return true;
+
+    if (a1 == a3)
+        return true;
+
+    return false;
+}
+
+bool match_ip_either_to_networks(lpi_data_t *data, const char *networks[], int number_of_networkds)
+{
+    for(int i = 0; i < number_of_networkds; i++) {
+        if (match_ip_either_to_network(data, networks[i]))
+            return true;
+    }
+
+
+    return false;
 }
