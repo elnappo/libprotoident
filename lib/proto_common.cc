@@ -711,8 +711,6 @@ bool match_ip_either_to_network(lpi_data_t *data, const char *network)
     if (netmask < 0 || netmask > 32)
         return false;
 
-    std::cout << data->ips[0] << std::endl;
-
     in_addr_t addr = inet_network(address);
 
     in_addr_t a1 = ::network(addr, netmask);
