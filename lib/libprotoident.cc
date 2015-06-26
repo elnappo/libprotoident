@@ -41,6 +41,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 
 #include "libprotoident.h"
 #include "proto_manager.h"
