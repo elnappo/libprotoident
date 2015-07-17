@@ -706,6 +706,7 @@ bool match_ip_either_to_network(lpi_data_t *data, const char *network)
 {
     char * network_copy = strdup(network);
     const char *address = strtok(network_copy, "/");
+    free(network_copy);
     int netmask = atoi(strtok(NULL, "/"));
 
     if (netmask < 0 || netmask > 32)
